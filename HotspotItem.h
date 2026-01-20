@@ -33,7 +33,7 @@ public:
 
     QString id() const { return m_id; }
 
-    HotspotShape shape() const { return m_shape; }
+    HotspotShape hotspotShape() const { return m_shape; }
 
     // For rectangle
     void setRect(const QRectF &rect);

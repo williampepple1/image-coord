@@ -496,14 +496,14 @@ void MainWindow::saveProject()
     QJsonArray hotspotsArray;
     for (const HotspotItem *hotspot : m_editor->hotspots()) {
         QJsonObject h;
-        h["shape"] = static_cast<int>(hotspot->shape());
+        h["shape"] = static_cast<int>(hotspot->hotspotShape());
         h["url"] = hotspot->url();
         h["alt"] = hotspot->altText();
         h["title"] = hotspot->title();
         h["posX"] = hotspot->pos().x();
         h["posY"] = hotspot->pos().y();
 
-        switch (hotspot->shape()) {
+        switch (hotspot->hotspotShape()) {
         case HotspotShape::Rectangle: {
             QRectF r = hotspot->rect();
             h["x"] = r.x();
@@ -727,7 +727,7 @@ void MainWindow::onHotspotSelected(HotspotItem *hotspot)
     // Update properties panel
     if (hotspot) {
         QString shapeName;
-        switch (hotspot->shape()) {
+        switch (hotspot->hotspotShape()) {
         case HotspotShape::Rectangle: shapeName = "Rectangle"; break;
         case HotspotShape::Circle: shapeName = "Circle"; break;
         case HotspotShape::Polygon: shapeName = "Polygon"; break;
@@ -829,7 +829,7 @@ void MainWindow::updateHotspotList()
 
     for (HotspotItem *hotspot : m_editor->hotspots()) {
         QString shapeName;
-        switch (hotspot->shape()) {
+        switch (hotspot->hotspotShape()) {
         case HotspotShape::Rectangle: shapeName = "▭ Rect"; break;
         case HotspotShape::Circle: shapeName = "○ Circle"; break;
         case HotspotShape::Polygon: shapeName = "⬡ Poly"; break;
