@@ -20,7 +20,7 @@ qrc_*.cpp
 # Compiled files
 *.o
 *.obj
-*.exe
+# *.exe
 *.dll
 *.so
 *.dylib

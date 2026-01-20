@@ -22,7 +22,7 @@ DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 ; Output settings
 OutputDir=dist
-OutputBaseFilename=ImageMapGenerator-Setup-Win64
+OutputBaseFilename=ImageMapGenerator-v{#MyAppVersion}-Setup-Win64
 SetupIconFile=icons\app.ico
 ; Compression
 Compression=lzma2/ultra64
