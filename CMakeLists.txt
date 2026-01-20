@@ -14,6 +14,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 qt_add_resources(RESOURCES resources.qrc)
 
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
+
 add_executable(image-coord
     main.cpp
     MainWindow.cpp
@@ -23,6 +25,7 @@ add_executable(image-coord
     HotspotItem.cpp
     HotspotItem.h
     ${RESOURCES}
+    ${APP_ICON_RESOURCE_WINDOWS}
 )
 
 target_link_libraries(image-coord PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

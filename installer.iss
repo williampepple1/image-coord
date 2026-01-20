@@ -23,7 +23,7 @@ AllowNoIcons=yes
 ; Output settings
 OutputDir=dist
 OutputBaseFilename=ImageMapGenerator-Setup-Win64
-; SetupIconFile=icons\app.ico  ; Uncomment if you have an ICO file
+SetupIconFile=icons\app.ico
 ; Compression
 Compression=lzma2/ultra64
 SolidCompression=yes
