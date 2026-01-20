@@ -278,10 +278,12 @@ void MainWindow::setupToolBar()
 {
     QToolBar *toolBar = addToolBar("Tools");
     toolBar->setMovable(false);
-    toolBar->setIconSize(QSize(24, 24));
+    toolBar->setIconSize(QSize(22, 22));
+    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     // Open image button
-    QAction *openAction = toolBar->addAction("📂 Open");
+    QAction *openAction = toolBar->addAction(QIcon(":/icons/icons/open.svg"), "Open");
+    openAction->setToolTip("Open an image file");
     connect(openAction, &QAction::triggered, this, &MainWindow::openImage);
 
     toolBar->addSeparator();
@@ -289,45 +291,52 @@ void MainWindow::setupToolBar()
     // Tool group
     m_toolGroup = new QActionGroup(this);
 
-    m_selectAction = toolBar->addAction("🔍 Select");
+    m_selectAction = toolBar->addAction(QIcon(":/icons/icons/select.svg"), "Select");
     m_selectAction->setCheckable(true);
     m_selectAction->setChecked(true);
+    m_selectAction->setToolTip("Select and move hotspots");
     m_toolGroup->addAction(m_selectAction);
     connect(m_selectAction, &QAction::triggered, this, &MainWindow::onToolSelect);
 
-    m_rectAction = toolBar->addAction("▭ Rectangle");
+    m_rectAction = toolBar->addAction(QIcon(":/icons/icons/rectangle.svg"), "Rectangle");
     m_rectAction->setCheckable(true);
+    m_rectAction->setToolTip("Draw rectangular hotspot");
     m_toolGroup->addAction(m_rectAction);
     connect(m_rectAction, &QAction::triggered, this, &MainWindow::onToolRect);
 
-    m_circleAction = toolBar->addAction("○ Circle");
+    m_circleAction = toolBar->addAction(QIcon(":/icons/icons/circle.svg"), "Circle");
     m_circleAction->setCheckable(true);
+    m_circleAction->setToolTip("Draw circular hotspot");
     m_toolGroup->addAction(m_circleAction);
     connect(m_circleAction, &QAction::triggered, this, &MainWindow::onToolCircle);
 
-    m_polygonAction = toolBar->addAction("⬡ Polygon");
+    m_polygonAction = toolBar->addAction(QIcon(":/icons/icons/polygon.svg"), "Polygon");
     m_polygonAction->setCheckable(true);
+    m_polygonAction->setToolTip("Draw polygon hotspot (right-click or double-click to finish)");
     m_toolGroup->addAction(m_polygonAction);
     connect(m_polygonAction, &QAction::triggered, this, &MainWindow::onToolPolygon);
 
     toolBar->addSeparator();
 
     // Clipboard mode toggle
-    m_clipboardModeAction = toolBar->addAction("📋 Clipboard Mode");
+    m_clipboardModeAction = toolBar->addAction(QIcon(":/icons/icons/clipboard.svg"), "Clipboard");
     m_clipboardModeAction->setCheckable(true);
-    m_clipboardModeAction->setToolTip("When enabled, clicking on the image copies coordinates to clipboard");
+    m_clipboardModeAction->setToolTip("Clipboard Mode: Click to copy coordinates");
     connect(m_clipboardModeAction, &QAction::toggled, this, &MainWindow::onClipboardModeToggled);
 
     toolBar->addSeparator();
 
     // Zoom buttons
-    QAction *zoomInAction = toolBar->addAction("🔎+ Zoom In");
+    QAction *zoomInAction = toolBar->addAction(QIcon(":/icons/icons/zoom-in.svg"), "Zoom In");
+    zoomInAction->setToolTip("Zoom in");
     connect(zoomInAction, &QAction::triggered, m_editor, &ImageMapEditor::zoomIn);
 
-    QAction *zoomOutAction = toolBar->addAction("🔎- Zoom Out");
+    QAction *zoomOutAction = toolBar->addAction(QIcon(":/icons/icons/zoom-out.svg"), "Zoom Out");
+    zoomOutAction->setToolTip("Zoom out");
     connect(zoomOutAction, &QAction::triggered, m_editor, &ImageMapEditor::zoomOut);
 
-    QAction *zoomFitAction = toolBar->addAction("⊡ Fit");
+    QAction *zoomFitAction = toolBar->addAction(QIcon(":/icons/icons/zoom-fit.svg"), "Fit");
+    zoomFitAction->setToolTip("Fit image to window");
     connect(zoomFitAction, &QAction::triggered, m_editor, &ImageMapEditor::zoomFit);
 }
 
@@ -384,7 +393,7 @@ void MainWindow::setupDockWidgets()
 
     propLayout->addStretch();
 
-    QPushButton *deleteBtn = new QPushButton("🗑 Delete Hotspot");
+    QPushButton *deleteBtn = new QPushButton(QIcon(":/icons/icons/delete.svg"), "Delete Hotspot");
     deleteBtn->setObjectName("dangerButton");
     connect(deleteBtn, &QPushButton::clicked, this, &MainWindow::onDeleteHotspot);
     propLayout->addWidget(deleteBtn);
@@ -439,11 +448,11 @@ void MainWindow::setupDockWidgets()
     codeLayout->addWidget(m_codePreview);
 
     QHBoxLayout *btnLayout = new QHBoxLayout();
-    QPushButton *copyBtn = new QPushButton("📋 Copy to Clipboard");
+    QPushButton *copyBtn = new QPushButton(QIcon(":/icons/icons/copy.svg"), "Copy to Clipboard");
     connect(copyBtn, &QPushButton::clicked, this, &MainWindow::copyHtmlToClipboard);
     btnLayout->addWidget(copyBtn);
 
-    QPushButton *exportBtn = new QPushButton("💾 Export HTML");
+    QPushButton *exportBtn = new QPushButton(QIcon(":/icons/icons/save.svg"), "Export HTML");
     connect(exportBtn, &QPushButton::clicked, this, &MainWindow::exportHtml);
     btnLayout->addWidget(exportBtn);
     codeLayout->addLayout(btnLayout);
