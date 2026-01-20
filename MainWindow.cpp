@@ -179,6 +179,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_editor, &ImageMapEditor::hotspotRemoved, this, &MainWindow::onHotspotRemoved);
     connect(m_editor, &ImageMapEditor::hotspotSelected, this, &MainWindow::onHotspotSelected);
     connect(m_editor, &ImageMapEditor::coordinatesChanged, this, &MainWindow::onCoordinatesChanged);
+    connect(m_editor, &ImageMapEditor::coordinatesCopied, this, &MainWindow::onCoordinatesCopied);
 
     // Set initial tool
     setCurrentTool(EditorTool::Select);
@@ -306,6 +307,14 @@ void MainWindow::setupToolBar()
     m_polygonAction->setCheckable(true);
     m_toolGroup->addAction(m_polygonAction);
     connect(m_polygonAction, &QAction::triggered, this, &MainWindow::onToolPolygon);
+
+    toolBar->addSeparator();
+
+    // Clipboard mode toggle
+    m_clipboardModeAction = toolBar->addAction("📋 Clipboard Mode");
+    m_clipboardModeAction->setCheckable(true);
+    m_clipboardModeAction->setToolTip("When enabled, clicking on the image copies coordinates to clipboard");
+    connect(m_clipboardModeAction, &QAction::toggled, this, &MainWindow::onClipboardModeToggled);
 
     toolBar->addSeparator();
 
@@ -860,6 +869,24 @@ void MainWindow::onCoordinatesChanged(const QPointF &pos)
     m_coordsStatusLabel->setText(QString("X: %1, Y: %2")
                                      .arg(qRound(pos.x()))
                                      .arg(qRound(pos.y())));
+}
+
+void MainWindow::onCoordinatesCopied(const QPointF &pos)
+{
+    statusBar()->showMessage(QString("Copied: %1,%2")
+                                 .arg(qRound(pos.x()))
+                                 .arg(qRound(pos.y())), 2000);
+}
+
+void MainWindow::onClipboardModeToggled(bool checked)
+{
+    m_editor->setClipboardMode(checked);
+
+    if (checked) {
+        statusBar()->showMessage("Clipboard mode ON - Click to copy coordinates", 3000);
+    } else {
+        statusBar()->showMessage("Clipboard mode OFF", 1500);
+    }
 }
 
 void MainWindow::copyHtmlToClipboard()

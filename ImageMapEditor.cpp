@@ -4,6 +4,8 @@
 #include <QKeyEvent>
 #include <QScrollBar>
 #include <QFileInfo>
+#include <QClipboard>
+#include <QApplication>
 #include <cmath>
 
 ImageMapEditor::ImageMapEditor(QWidget *parent)
@@ -182,10 +184,28 @@ void ImageMapEditor::zoomReset()
     setTransform(QTransform());
 }
 
+void ImageMapEditor::setClipboardMode(bool enabled)
+{
+    m_clipboardMode = enabled;
+    if (enabled) {
+        setCursor(Qt::CrossCursor);
+    } else {
+        setCurrentTool(m_currentTool); // Reset cursor based on current tool
+    }
+}
+
 void ImageMapEditor::mousePressEvent(QMouseEvent *event)
 {
     QPointF scenePos = mapToScene(event->pos());
     emit coordinatesChanged(scenePos);
+
+    // Handle clipboard mode
+    if (m_clipboardMode && event->button() == Qt::LeftButton) {
+        QString coords = QString("%1,%2").arg(qRound(scenePos.x())).arg(qRound(scenePos.y()));
+        QApplication::clipboard()->setText(coords);
+        emit coordinatesCopied(scenePos);
+        return;
+    }
 
     if (event->button() == Qt::LeftButton) {
         switch (m_currentTool) {

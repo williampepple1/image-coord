@@ -46,12 +46,16 @@ public:
     void zoomFit();
     void zoomReset();
 
+    void setClipboardMode(bool enabled);
+    bool isClipboardMode() const { return m_clipboardMode; }
+
 signals:
     void hotspotAdded(HotspotItem *hotspot);
     void hotspotRemoved(HotspotItem *hotspot);
     void hotspotSelected(HotspotItem *hotspot);
     void imageLoaded(const QString &path);
     void coordinatesChanged(const QPointF &pos);
+    void coordinatesCopied(const QPointF &pos);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -81,6 +85,7 @@ private:
     HotspotItem *m_currentDrawingItem = nullptr;
 
     qreal m_zoomFactor = 1.0;
+    bool m_clipboardMode = false;
 };
 
 #endif // IMAGEMAPEDITOR_H
