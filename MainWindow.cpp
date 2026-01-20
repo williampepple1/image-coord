@@ -15,11 +15,13 @@
 #include <QStyle>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QIcon>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle("Image Map Generator");
+    setWindowIcon(QIcon(":/icons/icons/app.svg"));
     setMinimumSize(1200, 800);
 
     // Apply dark theme

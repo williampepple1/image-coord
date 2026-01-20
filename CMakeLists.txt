@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+qt_add_resources(RESOURCES resources.qrc)
+
 add_executable(image-coord
     main.cpp
     MainWindow.cpp
@@ -20,6 +22,7 @@ add_executable(image-coord
     ImageMapEditor.h
     HotspotItem.cpp
     HotspotItem.h
+    ${RESOURCES}
 )
 
 target_link_libraries(image-coord PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
