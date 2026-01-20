@@ -324,6 +324,12 @@ void MainWindow::setupToolBar()
     m_clipboardModeAction->setToolTip("Clipboard Mode: Click to copy coordinates");
     connect(m_clipboardModeAction, &QAction::toggled, this, &MainWindow::onClipboardModeToggled);
 
+    // Screen Standard mode toggle (1920x1080)
+    m_screenStandardAction = toolBar->addAction(QIcon(":/icons/icons/screen-standard.svg"), "1080p");
+    m_screenStandardAction->setCheckable(true);
+    m_screenStandardAction->setToolTip("Screen Standard Mode: Scale coordinates to 1920×1080");
+    connect(m_screenStandardAction, &QAction::toggled, this, &MainWindow::onScreenStandardModeToggled);
+
     toolBar->addSeparator();
 
     // Zoom buttons
@@ -897,6 +903,18 @@ void MainWindow::onClipboardModeToggled(bool checked)
         statusBar()->showMessage("Clipboard mode ON - Click to copy coordinates", 3000);
     } else {
         statusBar()->showMessage("Clipboard mode OFF", 1500);
+    }
+}
+
+void MainWindow::onScreenStandardModeToggled(bool checked)
+{
+    m_editor->setScreenStandardMode(checked);
+    updateCodePreview();
+
+    if (checked) {
+        statusBar()->showMessage("Screen Standard Mode ON - Coordinates scaled to 1920×1080", 3000);
+    } else {
+        statusBar()->showMessage("Screen Standard Mode OFF - Using original image dimensions", 2000);
     }
 }
 

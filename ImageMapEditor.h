@@ -49,6 +49,15 @@ public:
     void setClipboardMode(bool enabled);
     bool isClipboardMode() const { return m_clipboardMode; }
 
+    void setScreenStandardMode(bool enabled);
+    bool isScreenStandardMode() const { return m_screenStandardMode; }
+    
+    // Convert scene coordinates to output coordinates (applies screen standard scaling if enabled)
+    QPointF toOutputCoords(const QPointF &scenePos) const;
+    QRectF toOutputRect(const QRectF &sceneRect) const;
+    qreal toOutputRadius(qreal radius) const;
+    QPolygonF toOutputPolygon(const QPolygonF &polygon) const;
+
 signals:
     void hotspotAdded(HotspotItem *hotspot);
     void hotspotRemoved(HotspotItem *hotspot);
@@ -70,6 +79,7 @@ private:
     void finishCurrentDrawing();
     void cancelCurrentDrawing();
     HotspotItem* hotspotAt(const QPointF &scenePos);
+    QString generateAreaTagForHotspot(const HotspotItem *hotspot) const;
 
     QGraphicsScene *m_scene;
     QGraphicsPixmapItem *m_imageItem = nullptr;
@@ -86,6 +96,11 @@ private:
 
     qreal m_zoomFactor = 1.0;
     bool m_clipboardMode = false;
+    bool m_screenStandardMode = false;
+    
+    // Screen standard resolution
+    static constexpr int STANDARD_WIDTH = 1920;
+    static constexpr int STANDARD_HEIGHT = 1080;
 };
 
 #endif // IMAGEMAPEDITOR_H

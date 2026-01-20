@@ -14,5 +14,6 @@
         <file>icons/zoom-fit.svg</file>
         <file>icons/delete.svg</file>
         <file>icons/copy.svg</file>
+        <file>icons/screen-standard.svg</file>
     </qresource>
 </RCC>

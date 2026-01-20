@@ -143,14 +143,24 @@ QString ImageMapEditor::generateImageMapHtml(const QString &mapName) const
         imageName = "image.png";
     }
 
+    // Determine output dimensions
+    int outputWidth = m_imageItem->pixmap().width();
+    int outputHeight = m_imageItem->pixmap().height();
+    if (m_screenStandardMode) {
+        outputWidth = STANDARD_WIDTH;
+        outputHeight = STANDARD_HEIGHT;
+    }
+
     QStringList html;
-    html << QString("<img src=\"%1\" usemap=\"#%2\" alt=\"Image Map\">")
+    html << QString("<img src=\"%1\" width=\"%2\" height=\"%3\" usemap=\"#%4\" alt=\"Image Map\">")
                 .arg(imageName.toHtmlEscaped())
+                .arg(outputWidth)
+                .arg(outputHeight)
                 .arg(mapName.toHtmlEscaped());
     html << QString("<map name=\"%1\">").arg(mapName.toHtmlEscaped());
 
     for (const HotspotItem *hotspot : m_hotspots) {
-        html << "  " + hotspot->generateAreaTag();
+        html << "  " + generateAreaTagForHotspot(hotspot);
     }
 
     html << "</map>";
@@ -194,16 +204,83 @@ void ImageMapEditor::setClipboardMode(bool enabled)
     }
 }
 
+void ImageMapEditor::setScreenStandardMode(bool enabled)
+{
+    m_screenStandardMode = enabled;
+}
+
+QPointF ImageMapEditor::toOutputCoords(const QPointF &scenePos) const
+{
+    if (!m_screenStandardMode || !m_imageItem) {
+        return scenePos;
+    }
+    
+    QSizeF imageSize = m_imageItem->pixmap().size();
+    if (imageSize.isEmpty()) {
+        return scenePos;
+    }
+    
+    qreal scaleX = static_cast<qreal>(STANDARD_WIDTH) / imageSize.width();
+    qreal scaleY = static_cast<qreal>(STANDARD_HEIGHT) / imageSize.height();
+    
+    return QPointF(scenePos.x() * scaleX, scenePos.y() * scaleY);
+}
+
+QRectF ImageMapEditor::toOutputRect(const QRectF &sceneRect) const
+{
+    if (!m_screenStandardMode || !m_imageItem) {
+        return sceneRect;
+    }
+    
+    QPointF topLeft = toOutputCoords(sceneRect.topLeft());
+    QPointF bottomRight = toOutputCoords(sceneRect.bottomRight());
+    
+    return QRectF(topLeft, bottomRight);
+}
+
+qreal ImageMapEditor::toOutputRadius(qreal radius) const
+{
+    if (!m_screenStandardMode || !m_imageItem) {
+        return radius;
+    }
+    
+    QSizeF imageSize = m_imageItem->pixmap().size();
+    if (imageSize.isEmpty()) {
+        return radius;
+    }
+    
+    // Use average scale for radius
+    qreal scaleX = static_cast<qreal>(STANDARD_WIDTH) / imageSize.width();
+    qreal scaleY = static_cast<qreal>(STANDARD_HEIGHT) / imageSize.height();
+    qreal avgScale = (scaleX + scaleY) / 2.0;
+    
+    return radius * avgScale;
+}
+
+QPolygonF ImageMapEditor::toOutputPolygon(const QPolygonF &polygon) const
+{
+    if (!m_screenStandardMode || !m_imageItem) {
+        return polygon;
+    }
+    
+    QPolygonF result;
+    for (const QPointF &pt : polygon) {
+        result.append(toOutputCoords(pt));
+    }
+    return result;
+}
+
 void ImageMapEditor::mousePressEvent(QMouseEvent *event)
 {
     QPointF scenePos = mapToScene(event->pos());
-    emit coordinatesChanged(scenePos);
+    QPointF outputPos = toOutputCoords(scenePos);
+    emit coordinatesChanged(outputPos);
 
     // Handle clipboard mode
     if (m_clipboardMode && event->button() == Qt::LeftButton) {
-        QString coords = QString("%1,%2").arg(qRound(scenePos.x())).arg(qRound(scenePos.y()));
+        QString coords = QString("%1,%2").arg(qRound(outputPos.x())).arg(qRound(outputPos.y()));
         QApplication::clipboard()->setText(coords);
-        emit coordinatesCopied(scenePos);
+        emit coordinatesCopied(outputPos);
         return;
     }
 
@@ -256,7 +333,8 @@ void ImageMapEditor::mousePressEvent(QMouseEvent *event)
 void ImageMapEditor::mouseMoveEvent(QMouseEvent *event)
 {
     QPointF scenePos = mapToScene(event->pos());
-    emit coordinatesChanged(scenePos);
+    QPointF outputPos = toOutputCoords(scenePos);
+    emit coordinatesChanged(outputPos);
 
     if (m_isDrawing && m_currentDrawingItem) {
         switch (m_currentTool) {
@@ -423,4 +501,61 @@ HotspotItem* ImageMapEditor::hotspotAt(const QPointF &scenePos)
         }
     }
     return nullptr;
+}
+
+QString ImageMapEditor::generateAreaTagForHotspot(const HotspotItem *hotspot) const
+{
+    QString shapeName;
+    QStringList coords;
+    
+    switch (hotspot->hotspotShape()) {
+    case HotspotShape::Rectangle: {
+        shapeName = "rect";
+        QRectF r = hotspot->rect().translated(hotspot->pos());
+        QRectF outputRect = toOutputRect(r);
+        coords << QString::number(qRound(outputRect.left()))
+               << QString::number(qRound(outputRect.top()))
+               << QString::number(qRound(outputRect.right()))
+               << QString::number(qRound(outputRect.bottom()));
+        break;
+    }
+    case HotspotShape::Circle: {
+        shapeName = "circle";
+        QPointF c = hotspot->center() + hotspot->pos();
+        QPointF outputCenter = toOutputCoords(c);
+        qreal outputRadius = toOutputRadius(hotspot->radius());
+        coords << QString::number(qRound(outputCenter.x()))
+               << QString::number(qRound(outputCenter.y()))
+               << QString::number(qRound(outputRadius));
+        break;
+    }
+    case HotspotShape::Polygon: {
+        shapeName = "poly";
+        for (const QPointF &pt : hotspot->polygon()) {
+            QPointF p = pt + hotspot->pos();
+            QPointF outputPt = toOutputCoords(p);
+            coords << QString::number(qRound(outputPt.x()))
+                   << QString::number(qRound(outputPt.y()));
+        }
+        break;
+    }
+    }
+    
+    QString tag = QString("<area shape=\"%1\" coords=\"%2\" href=\"%3\"")
+                      .arg(shapeName)
+                      .arg(coords.join(","))
+                      .arg(hotspot->url().isEmpty() ? "#" : hotspot->url().toHtmlEscaped());
+
+    if (!hotspot->altText().isEmpty()) {
+        tag += QString(" alt=\"%1\"").arg(hotspot->altText().toHtmlEscaped());
+    } else {
+        tag += " alt=\"\"";
+    }
+
+    if (!hotspot->title().isEmpty()) {
+        tag += QString(" title=\"%1\"").arg(hotspot->title().toHtmlEscaped());
+    }
+
+    tag += ">";
+    return tag;
 }

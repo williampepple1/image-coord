@@ -47,6 +47,7 @@ private slots:
     void onCoordinatesChanged(const QPointF &pos);
     void onCoordinatesCopied(const QPointF &pos);
     void onClipboardModeToggled(bool checked);
+    void onScreenStandardModeToggled(bool checked);
     void copyHtmlToClipboard();
 
 private:
@@ -65,6 +66,7 @@ private:
     QAction *m_circleAction;
     QAction *m_polygonAction;
     QAction *m_clipboardModeAction;
+    QAction *m_screenStandardAction;
     QActionGroup *m_toolGroup;
 
     // Dock widgets
